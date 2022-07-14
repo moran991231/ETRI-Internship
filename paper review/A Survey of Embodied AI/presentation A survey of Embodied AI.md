@@ -88,6 +88,22 @@ navigation, atomic action, ROS지원
 
 1. AI2-THOR  [홈페이지](https://ai2thor.allenai.org/)
 RoboTHOR을 제어하는 가상 로봇 컨트롤러 포함
+![](./ai2-thor_architecture.png) 출처: [ai2-thor 논문](https://arxiv.org/pdf/1712.05474.pdf)
+>AI2-THOR is made up of two components: (1) a set of
+> scenes built within the Unity Game engine, (2) a lightweight
+> Python API that interacts with the game engine.
+> On the Python side there is a Flask service that listens
+> for HTTP requests from the Unity Game engine. After an
+> action is executed within the game engine, a screen capture
+> is taken and a JSON metadata object is constructed from
+> the state of all the objects of the scene and POST’d to the
+> Python Flask service. This payload is then used to construct
+> an Event object comprised of a numpy array (the screen capture) and metadata (dictionary containing the current state
+> of every object including the agent). At this point the game
+> engine waits for a response from the Python service, which
+> it receives when the next controller.step() call is
+> made. Once the response is received within Unity, the requested action is taken and the process repeats. Figure 3
+> illustrates the overall architecture of AI2-THOR.
 
 1. iGibson 
 iGibson’s Castro를 제어하는 가상 로봇 컨트롤러 포함

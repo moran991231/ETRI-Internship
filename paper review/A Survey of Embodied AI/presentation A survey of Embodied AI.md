@@ -89,29 +89,32 @@ navigation, atomic action, ROS지원
 1. AI2-THOR  [홈페이지](https://ai2thor.allenai.org/)
 RoboTHOR을 제어하는 가상 로봇 컨트롤러 포함
 ![](./ai2-thor_architecture.png) 출처: [ai2-thor 논문](https://arxiv.org/pdf/1712.05474.pdf)
->AI2-THOR is made up of two components: (1) a set of
-> scenes built within the Unity Game engine, (2) a lightweight
-> Python API that interacts with the game engine.
-> On the Python side there is a Flask service that listens
-> for HTTP requests from the Unity Game engine. After an
-> action is executed within the game engine, a screen capture
-> is taken and a JSON metadata object is constructed from
-> the state of all the objects of the scene and POST’d to the
-> Python Flask service. This payload is then used to construct
-> an Event object comprised of a numpy array (the screen capture) and metadata (dictionary containing the current state
-> of every object including the agent). At this point the game
-> engine waits for a response from the Python service, which
-> it receives when the next controller.step() call is
-> made. Once the response is received within Unity, the requested action is taken and the process repeats. Figure 3
-> illustrates the overall architecture of AI2-THOR.
+> AI2-THOR의 구성
+> (1) 유니티 게임엔진에서 빌드된 장면셋
+> (2) 게임엔진과 상호작용하는 가벼운 python api 
+> 파이썬쪽에서는 유니티가 보낸 http 요청을 받는다. 게임엔진에서 액션을 취하면 화면이 JSON형식 메타데이터로 저장된다. 
+> 유니티내에서 응답을 한 번 받으면 요청된 액션이 취해진다. 
 
-1. iGibson 
+
+1. iGibson [홈페이지](https://svl.stanford.edu/igibson/)
 iGibson’s Castro를 제어하는 가상 로봇 컨트롤러 포함
 그래픽 랜더링 성능 좋다.
+![](./igibson_features.png)
 
-1. Habitat-Sim 
+> 오픈 소스 시뮬레이션 환경인 iGibson 2.0
+> 온도, 습도 수준, 청결 수준, 토글 및 슬라이스 상태를 포함한 객체 상태를 지원
+>  iGibson 2.0에는 가상현실(VR) 인터페이스가 포함 (인간의 데모를 수집하고 모방 학습에 사용가능)
+> 출처: arXiv:2108.03272 (https://arxiv.org/abs/2108.03272)
+
+
+1. Habitat-Sim [홈페이지](https://aihabitat.org/)
 그래픽 랜더링 성능 좋다.
 configurable agents, multiple sensors
+> (1)ReplicaCAD: 아티스틱 오브젝트(예: 개폐가 가능한 캐비닛 및 서랍)가 있는 (실제 공간과 일치하는) 예술가가 작성한 3D 데이터 세트가 있다.
+> (2) 8개의 GPU 노드 상에서 25000 시뮬레이션 스텝을 수행한다. 물리적 효과를 지원하는 3D 시뮬레이터이다.
+> (3) Home Assistant Benchmark(HAB): 다양한 모바일 조작 기능을 테스트하는 보조 로봇(집 정리, 식료품 준비, 테이블 세트)의 공통 작업을 포함했다.
+> 출처: arXiv:2106.14405 (https://arxiv.org/abs/2106.14405)
+
 
 
 
@@ -246,6 +249,51 @@ RGB and/or 깊이 센서를 사용하므로 센서 노이즈 측정에 더 강�
 
 * hybrid approach  
 classic의 장점과 learning-based의 장점 통합
+
+1. Point Nav
+2. Object Nav
+
+3. Navigation with Priors  
+의미적 지식을 주입하거나 다양한 입력형태를 사전에 받는 것에 집중한다. 지식그래프나 오디오 입력이나 아무 환경에서 EAI 에이전트가 네비게이션 작업훈련을 돕는것 같은 일이다.
+
+딥 강화학습 프레임워크에서 통합된 사람의 사전지식을 사용하는 과거의 성과는 인공 에이전트가 사람같은 의미적/기능적 사전지식을  이용해서 에이전트가 (미지의 환경에서 본 적 없는 객체를 찾아가고 찾아내기위한 ) 학습하는 데에  도움이 된다는 것을 보여준다.  
+사람이 물건을 찾기 위해서 논리적 위치(ex. 과일은 냉장고에 있다)를 보는 경향이 있는데 이러한 지식은 그래프네트워크에 인코딩되고 딥 강화학습프레임워크에서 훈련된다.
+
+인간은 인식과 소리나는 물체의 물리적 위치를 대응시키는 능력이 있다. 소리나는 물체를 찾기 위해서는 비전과 소리신호를 모두 감지해야 한다. 비전 인식 매핑기와 소리 인식 모듈과 dynamic 경로 플래너가 모두 잘 동작해야 한다.
+
+4. Vision-and-Language Navigation(VLN)  
+에이전트가 자연어 명령어를 따라서 환경을 탐사하는 것을 배운다.  
+
+* challenging point
+    * 시각 장면정보와 언어를 연속적으로 받아내야 함
+    * 에이전트가 과거 액션과 명령어에 기반해서 미래의 액션을 예측해야 함
+
+자연어 명령어로 그들이 매끈하게 움직이기 힘들 수도 있다.
+ 
+|      | 비전-언어 탐사 | Visual QA |
+|------|----------------|-----------|
+|공통점|시각기반, 순서에 따라 트랜스코딩|
+|차이점|더 작업이 오래걸림. 비전데이터 입력이 끊임없이 제공되어야 하고, 카메라 시점을 변경하는 기능도 필요하다.| 하나의 입력 질문을 받아서 답을 생성한다.|
+
+로봇에게 자연어로 명령을 내리고 작업[2,3,58]을 하도록 기대할 수 있다.
+* 사용된 기법  
+    * 진보된 recurrent 신경망 기법으로 시각, 자연어를 공동해석함  
+    * 3D환경에서 탐사하고 작업을 작업기반 명령어 프로세스로 간단화 하게 디자인된 데이터셋
+
+* Auxiliary Reasoning Navigation framework (보조 추론 탐사) 를 이용한 VLN 접근법  
+    보조 추론탐사의 4가지 과제
+    * trajectory retelling
+    * process estimation
+    * angle prediction
+    * cross-modal maching
+
+    에이전트는 과거의 액션을 추론하고 미래의 정보를 예측한다.
+
+* Vision-dialog navigation (VLN의 확장판)  
+    에이전트가 길찾기에 도움이 될 수 있는 사람과 일정한 자연어 대화를 하는 능력을 기르도록 학습한다.  
+    최근 연구[60]에서는 Cross-Modal Memory Network(CMN)을 사용한다. 이것은 별도의 언어 메모리와 시각 메모리 모듈을 통해서 이전 네비게이션 액션과 관련된유용한 정보를 기억하고 이해한다. 나아가 탐사를 위한 결정을 내린다.
+
+
 
 ### Evaluation metric
 * VN
